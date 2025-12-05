@@ -1,0 +1,19 @@
+# Ignore Gradle build outputs
+/build/
+/.gradle/
+/out/
+
+# Ignore IDE files
+/.idea/
+/*.iml
+/.vscode/
+
+# Ignore logs
+*.log
+
+# Ignore OS files
+.DS_Store
+
+# Ignore JARs if not needed (comment out if you want to push JAR)
+# *.jar
+
