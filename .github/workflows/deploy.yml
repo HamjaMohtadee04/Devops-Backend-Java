@@ -1,22 +1,26 @@
-name: Deploy Backend
-
-on:
-  push:
-    branches: ["main"]
-
-jobs:
-  deploy:
-    runs-on: self-hosted
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Build App
-      run: |
-        ./gradlew clean build -x test
-
-    - name: Deploy JAR
-      run: |
-        sudo cp build/libs/*.jar /opt/backend-app/app.jar
-        sudo systemctl restart backend
+steps:
+- name: Checkout code
+  uses: actions/checkout@v3
+  
+- name: Build App
+  run: |
+    # Use --scan for more detailed build log information if needed
+    ./gradlew clean build -x test
+    
+- name: Deploy JAR
+  # This step ensures the target directory exists and correctly handles the dynamic JAR name.
+  run: |
+    # 1. Ensure the target directory exists. The -p flag prevents an error if it already exists.
+    sudo mkdir -p /opt/backend-app/
+    
+    # 2. Copy the built JAR (which has a variable name) into the /opt/backend-app/ directory.
+    # This copies the file *into* the directory.
+    sudo cp build/libs/*.jar /opt/backend-app/
+    
+    # 3. Use 'mv' to rename the newly copied file (e.g., my-app-1.0.jar) to the consistent name 'app.jar'.
+    # This ensures the systemd service always points to the correct file name.
+    # We find the specific JAR using the same wildcard pattern.
+    sudo mv /opt/backend-app/*.jar /opt/backend-app/app.jar
+    
+    # 4. Restart the service to load the new JAR file.
+    sudo systemctl restart backend
